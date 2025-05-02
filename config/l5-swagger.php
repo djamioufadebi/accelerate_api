@@ -5,7 +5,8 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'L5 Swagger UI',
+                'title' => 'Accelerate API',
+                'version' => '1.0.0',
             ],
 
             'routes' => [
@@ -78,6 +79,8 @@ return [
         ],
 
         'paths' => [
+           
+            
             /*
              * Absolute path to location where parsed annotations will be stored
              */
@@ -92,6 +95,8 @@ return [
              * Edit to set the api's base path
              */
             'base' => env('L5_SWAGGER_BASE_PATH', null),
+
+            
 
             /*
              * Absolute path to directories that should be excluded from scanning
@@ -170,6 +175,14 @@ return [
         */
         'securityDefinitions' => [
             'securitySchemes' => [
+
+                'sanctum' => [
+                    'type' => 'apiKey',
+                    'description' => 'Enter token in format: Bearer {token}',
+                    'name' => 'Authorization',
+                    'in' => 'header',
+                ],
+                
                 /*
                  * Examples of Security schemes
                  */
