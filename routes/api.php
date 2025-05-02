@@ -8,8 +8,9 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\Api\AuthController;
 
 
+
 Route::controller(AuthController::class)->group(function(){
-    Route::post('register', 'register');
+    //Route::post('register', 'register');
     Route::post('login', 'login');
 });
 
@@ -22,4 +23,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('invoices', InvoiceController::class);
     Route::get('/invoices/{id}/pdf', [InvoiceController::class, 'generatePdf']);
     Route::get('/history', [InvoiceController::class, 'history']);
+
 });
