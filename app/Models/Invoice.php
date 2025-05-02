@@ -6,9 +6,11 @@ use App\Models\User;
 use App\Models\Client;
 use App\Models\InvoiceLine;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Invoice extends Model
 {
+    use HasFactory;
     protected $fillable = ['client_id', 'invoice_number', 'total_ht', 'issue_date', 'due_date'];
 
     public function client()

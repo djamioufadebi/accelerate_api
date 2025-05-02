@@ -34,7 +34,7 @@ class InvoiceTest extends TestCase
                  ->assertJsonFragment(['total_ht' => 300.00]);
     }
 
-    public function test_admin_can_generate_pdf()
+    /*public function test_admin_can_generate_pdf()
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $client = Client::factory()->create();
@@ -45,5 +45,35 @@ class InvoiceTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertHeader('Content-Type', 'application/pdf');
+    }*/
+
+    public function test_admin_can_generate_pdf()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $client = Client::factory()->create();
+        $invoice = Invoice::factory()->create(['client_id' => $client->id]);
+        Sanctum::actingAs($admin);
+
+        $response = $this->get('/api/v1/invoices/' . $invoice->id . '/pdf');
+
+        $response->assertStatus(200)
+                 ->assertHeader('Content-Type', 'application/pdf')
+                 ->assertHeader('Content-Disposition', 'attachment; filename="invoice-' . $invoice->invoice_number . '.pdf"');
     }
+    
+    public function test_create_invoice_with_invalid_client_id()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Sanctum::actingAs($admin);
+
+        $response = $this->postJson('/api/v1/invoices', [
+            'client_id' => 999, 
+            'issue_date' => '2025-05-01',
+            'due_date' => '2025-05-15',
+            'lines' => [['description' => 'Service A', 'amount' => 100.00]],
+        ]);
+
+        $response->assertStatus(422);
+    }
+
 }

@@ -18,10 +18,10 @@ class ClientTest extends TestCase
         Sanctum::actingAs($admin);
 
         $response = $this->postJson('/api/v1/clients', [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'phone' => '1234567890',
-            'address' => '123 Main St',
+            'name' => 'Odilon FANOU',
+            'email' => 'odilon@fanou.com',
+            'phone' => '+2290167223409',
+            'address' => '123 St Michel',
         ]);
 
         $response->assertStatus(201)
@@ -31,8 +31,8 @@ class ClientTest extends TestCase
     public function test_unauthenticated_user_cannot_create_client()
     {
         $response = $this->postJson('/api/v1/clients', [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
+            'name' => 'Odilon FANOU',
+            'email' => 'odilon@fanou.com',
         ]);
 
         $response->assertStatus(401);
