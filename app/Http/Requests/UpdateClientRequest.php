@@ -2,7 +2,11 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UpdateClientRequest extends FormRequest
 {
@@ -11,7 +15,7 @@ class UpdateClientRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::user()->role === 'admin';
     }
 
     /**
@@ -22,7 +26,32 @@ class UpdateClientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', Rule::unique('clients')->ignore($this->client->id)],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string'],
         ];
     }
+
+    public function failedValidation(Validator $validator){
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'error' => true,
+            'message' => "Erreur de validation",
+            'errorsList' => $validator->errors(),
+        ]));
+    }
+
+
+    public function messages() {
+        return [
+            'client_id.required' => "Le client est requis",
+            'email.required' => "L'email du client est requis",
+            'email.email' => "L'email est invalide",
+            'password.required' => "Le mot de passe du client est requis",
+            'password.min' => "Le mot de passe doit comporter minimum 6 caractères"
+        ];
+       
+    }
+
 }
