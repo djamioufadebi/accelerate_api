@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\InvoiceLine;
 use Laravel\Sanctum\Sanctum;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Resources\InvoiceResource;
@@ -197,6 +198,30 @@ class InvoiceTest extends TestCase
         file_put_contents($pdfPath, $response->getContent());
         $text = Pdf::getText($pdfPath);
         $this->assertStringContainsString('Statut : Brouillon', $text);
+    }
+
+
+    /**
+     * Summary of test_generate_pdf_success
+     * @return void
+     */
+    public function test_generate_pdf_success()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $client = Client::factory()->create();
+        $invoice = Invoice::factory()->create([
+            'client_id' => $client->id,
+            'status' => 'draft',
+        ]);
+        InvoiceLine::factory()->create(['invoice_id' => $invoice->id]);
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson("/api/v1/invoices/{$invoice->id}/pdf");
+
+        $response->assertStatus(200)
+                ->assertHeader('Content-Type', 'application/pdf')
+                ->assertHeader('Content-Disposition', 'attachment; filename="invoice-' . $invoice->invoice_number . '.pdf"');
     }
 
 }
