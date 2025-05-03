@@ -59,25 +59,6 @@ class InvoiceTest extends TestCase
         $this->assertEquals('2025-05-15', $data['due_date']);
     }
 
-    /**
-     * Summary of test_invoice_validation
-     * @return void
-     */
-    public function test_invoice_validation()
-    {
-        $admin = User::factory()->create(['role' => 'admin']);
-        Sanctum::actingAs($admin);
-
-        $response = $this->postJson('/api/v1/invoices', [
-            'client_id' => 999, // Invalide
-            'issue_date' => 'invalid-date',
-            'due_date' => '2025-04-01',
-            'lines' => [],
-        ]);
-
-        $response->assertStatus(422)
-                ->assertJsonValidationErrors(['client_id', 'issue_date', 'lines']);
-    }
 
     /**
      * Summary of test_create_invoice_with_invalid_client_id
