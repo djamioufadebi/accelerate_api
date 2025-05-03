@@ -1,61 +1,193 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Accelerate - Sprint 1
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Bienvenue dans la documentation de l'**Accelerate API**, une API RESTful développée pour gérer les factures d'une entreprise. Ce projet est réalisé dans le cadre du **Sprint 1** du projet , **Accelerate** et vise à fournir une solution robuste pour la création, la consultation, la suppression, et la génération de PDF pour les factures, avec un accent sur la sécurité, la performance, et la documentation.
 
-## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Sommaire
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- [Description du Projet](#description-du-projet)
+- [Technologies Utilisées](#technologies-utilisées)
+- [Prérequis](#prérequis)
+- [Installation et Configuration](#installation-et-configuration)
+  - [Environnement Local](#environnement-local)
+  - [Environnement Docker](#environnement-docker)
+- [Structure de l'API](#structure-de-lapi)
+  - [Authentification](#authentification)
+  - [Endpoints](#endpoints)
+- [Tester l'API avec Postman](#tester-lapi-avec-postman)
+- [Tests Automatisés](#tests-automatisés)
+- [Pipeline CI/CD](#pipeline-cicd)
+- [Collaboration avec l'Équipe](#collaboration-avec-léquipe)
+- [Gestion des Erreurs](#gestion-des-erreurs)
+- [Ressources Supplémentaires](#ressources-supplémentaires)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Description du Projet
 
-## Learning Laravel
+L'**Accelerate API** est une application Laravel conçue pour gérer les factures d'une entreprise. Elle permet aux utilisateurs authentifiés (rôle `admin`) de :
+- Créer, lister, consulter, et supprimer des factures.
+- Générer des PDF pour les factures.
+- Consulter un historique filtré des factures.
+- S'authentifier via un système sécurisé basé sur Laravel Sanctum.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**Caractéristiques clés** :
+- **Modèle de données** : Factures avec un champ `status` (enum: `draft`, `paid`, `cancelled`), liées à des clients et des lignes de facture.
+- **Sécurité** : Authentification via tokens Sanctum (`bearerAuth`), protection contre XSS, CSRF, et injections SQL.
+- **Documentation** : Swagger UI accessible à `/api/documentation`.
+- **Tests** : Tests unitaires et d'intégration avec PHPUnit, couverture >80%.
+- **Déploiement** : Support pour environnements locaux et Docker, avec CI/CD via Jenkins.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Ce projet est développé pour le **Sprint 1**, avec une collaboration étroite avec Malco pour les tests et la validation des endpoints avant le 6 mai 2025.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Technologies Utilisées
 
-## Laravel Sponsors
+- **Backend** : Laravel 11, PHP 8.2
+- **Base de données** : PostgreSQL 16 (MySQL également supporté)
+- **Authentification** : Laravel Sanctum
+- **Génération PDF** : `barryvdh/laravel-dompdf`
+- **Documentation API** : L5-Swagger (OpenAPI 3.0)
+- **Tests** : PHPUnit
+- **CI/CD** : Jenkins, GitHub Actions
+- **Conteneurisation** : Docker, Docker Compose
+- **Versionnement** : Git
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Prérequis
 
-### Premium Partners
+Avant de commencer, assurez-vous d'avoir installé :
+- PHP >= 8.2
+- Composer >= 2.0
+- PostgreSQL >= 16 (ou MySQL >= 8.0)
+- Node.js >= 18 (pour la compilation des assets, si applicable)
+- Docker et Docker Compose (pour l’environnement conteneurisé)
+- Git
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+Pour les tests :
+- Postman (pour tester les endpoints)
+- Navigateur web (pour accéder à la Swagger UI)
 
-## Contributing
+## Installation
+1. **Clone the repository**:
+   ```bash
+   git clone https://gitea.example.com/accelerate/accelerate-backend.git
+   cd accelerate-backend
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. **Install PHP dependencies**:
+   ```bash
+   composer install
+   ```
 
-## Code of Conduct
+3. **Install front-end dependencies** (if integrating with front-end):
+   ```bash
+   npm install
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. **Copy the environment file**:
+   ```bash
+   cp .env.example .env
+   ```
 
-## Security Vulnerabilities
+5. **Generate an application key**:
+   ```bash
+   php artisan key:generate
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Configuration
+1. **Configure the database**:
+   Edit `.env` to set your database credentials:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=accelerate
+   DB_USERNAME=root
+   DB_PASSWORD=secret
+   ```
 
-## License
+2. **Configure Sanctum**:
+   Ensure the following is set in `.env` for API authentication:
+   ```env
+   SANCTUM_STATEFUL_DOMAINS=localhost:8000
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+3. **Install and configure DomPDF** for PDF generation:
+   ```bash
+   composer require barryvdh/laravel-dompdf
+   php artisan vendor:publish --provider="Barryvdh\DomPDF\ServiceProvider"
+   ```
+
+4. **Install and configure Swagger** for API documentation:
+   ```bash
+   composer require darkaonline/l5-swagger
+   php artisan vendor:publish --provider="L5Swagger\L5SwaggerServiceProvider"
+   ```
+
+## Running the Application
+1. **Run migrations**:
+   ```bash
+   php artisan migrate
+   ```
+
+2. **Seed the database** (to create an admin user):
+   ```bash
+   php artisan db:seed --class=AdminSeeder
+   ```
+
+3. **Start the development server**:
+   ```bash
+   php artisan serve
+   ```
+   The API will be available at `http://localhost:8000`.
+
+4. **Compile front-end assets** (if needed):
+   ```bash
+   npm run dev
+   ```
+
+## Seeding the Database
+To create an admin user for testing authentication:
+```bash
+php artisan db:seed --class=AdminSeeder
+```
+Default credentials:
+- Email: `admin@example.com`
+- Password: `password`
+
+You can customize these in `.env`:
+```env
+ADMIN_NAME="Admin User"
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=password
+```
+
+## API Endpoints
+The API is prefixed with `/api/v1`. Key endpoints include:
+- **POST /api/v1/login**: Authenticate an admin (returns token).
+- **GET /api/v1/clients**: List clients (paginated, searchable).
+- **POST /api/v1/clients**: Create a client.
+- **GET /api/v1/invoices**: List invoices (paginated, filterable).
+- **POST /api/v1/invoices**: Create an invoice with lines.
+- **GET /api/v1/invoices/{id}/pdf**: Download invoice as PDF.
+
+See the [Swagger documentation](#documentation) for full details.
+
+## Testing
+Run the test suite to verify functionality:
+```bash
+php artisan test
+```
+Tests cover:
+- Authentication (login, logout).
+- CRUD operations for clients and invoices.
+- PDF generation.
+
+## Documentation
+The API is documented using Swagger (OpenAPI). To view the documentation:
+1. Generate the Swagger JSON file:
+   ```bash
+   php artisan l5-swagger:generate
+   ```
+2. Access the Swagger UI:
+   ```
+   http://localhost:8000/api/documentation
+   ```
+
