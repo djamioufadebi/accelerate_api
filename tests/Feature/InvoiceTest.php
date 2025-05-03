@@ -2,17 +2,23 @@
 
 namespace Tests\Feature;
 
+use Tests\TestCase;
+use App\Models\User;
 use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\TestCase;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Http\Resources\InvoiceResource;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class InvoiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Summary of test_admin_can_create_invoice
+     * @return void
+     */
     public function test_admin_can_create_invoice()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -34,33 +40,48 @@ class InvoiceTest extends TestCase
                  ->assertJsonFragment(['total_ht' => 300.00]);
     }
 
-    /*public function test_admin_can_generate_pdf()
+    /**
+     * Summary of test_invoice_resource_formats_dates_correctly
+     * @return void
+     */
+    public function test_invoice_resource_formats_dates_correctly()
     {
-        $admin = User::factory()->create(['role' => 'admin']);
-        $client = Client::factory()->create();
-        $invoice = Invoice::factory()->create(['client_id' => $client->id]);
-        Sanctum::actingAs($admin);
+        $invoice = Invoice::factory()->create([
+            'issue_date' => '2025-05-01',
+            'due_date' => '2025-05-15',
+        ]);
 
-        $response = $this->get('/api/v1/invoices/' . $invoice->id . '/pdf');
+        $resource = new InvoiceResource($invoice);
+        $data = $resource->toArray(request());
 
-        $response->assertStatus(200)
-                 ->assertHeader('Content-Type', 'application/pdf');
-    }*/
-
-    public function test_admin_can_generate_pdf()
-    {
-        $admin = User::factory()->create(['role' => 'admin']);
-        $client = Client::factory()->create();
-        $invoice = Invoice::factory()->create(['client_id' => $client->id]);
-        Sanctum::actingAs($admin);
-
-        $response = $this->get('/api/v1/invoices/' . $invoice->id . '/pdf');
-
-        $response->assertStatus(200)
-                 ->assertHeader('Content-Type', 'application/pdf')
-                 ->assertHeader('Content-Disposition', 'attachment; filename="invoice-' . $invoice->invoice_number . '.pdf"');
+        $this->assertEquals('2025-05-01', $data['issue_date']);
+        $this->assertEquals('2025-05-15', $data['due_date']);
     }
-    
+
+    /**
+     * Summary of test_invoice_validation
+     * @return void
+     */
+    public function test_invoice_validation()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        Sanctum::actingAs($admin);
+
+        $response = $this->postJson('/api/v1/invoices', [
+            'client_id' => 999, // Invalide
+            'issue_date' => 'invalid-date',
+            'due_date' => '2025-04-01',
+            'lines' => [],
+        ]);
+
+        $response->assertStatus(422)
+                ->assertJsonValidationErrors(['client_id', 'issue_date', 'lines']);
+    }
+
+    /**
+     * Summary of test_create_invoice_with_invalid_client_id
+     * @return void
+     */
     public function test_create_invoice_with_invalid_client_id()
     {
         $admin = User::factory()->create(['role' => 'admin']);
@@ -74,6 +95,108 @@ class InvoiceTest extends TestCase
         ]);
 
         $response->assertStatus(422);
+    }
+
+    /**
+     * Summary of test_admin_can_view_invoice
+     * @return void
+     */
+    public function test_admin_can_view_invoice()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $invoice = Invoice::factory()->create();
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson('/api/v1/invoices/' . $invoice->id);
+
+        $response->assertStatus(200)
+                ->assertJsonStructure([
+                    'data' => [
+                        'id',
+                        'client',
+                        'invoice_number',
+                        'total_ht',
+                        'issue_date',
+                        'due_date',
+                        'lines',
+                    ],
+                    'message',
+                ]);
+    }
+
+    /**
+     * Summary of test_admin_can_delete_invoice
+     * @return void
+     */
+    public function test_admin_can_delete_invoice()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $invoice = Invoice::factory()->create();
+        Sanctum::actingAs($admin);
+
+        $response = $this->deleteJson('/api/v1/invoices/' . $invoice->id);
+
+        $response->assertStatus(200)
+                ->assertJson([
+                    'message' => 'Facture supprimée avec succès',
+                    'data' => ['id' => $invoice->id],
+                ]);
+
+        $this->assertDatabaseMissing('invoices', ['id' => $invoice->id]);
+    }
+
+    /**
+     * Summary of test_non_admin_cannot_delete_invoice
+     * @return void
+     */
+    public function test_non_admin_cannot_delete_invoice()
+    {
+        $user = User::factory()->create(['role' => 'user']);
+        $invoice = Invoice::factory()->create();
+        Sanctum::actingAs($user);
+
+        $response = $this->deleteJson('/api/v1/invoices/' . $invoice->id);
+
+        $response->assertStatus(403)
+                ->assertJson(['message' => "Vous n'avez pas l'autorisation d'effectuer cette action"]);
+    }
+
+     /**
+     * Summary of test_admin_can_generate_pdf
+     * @return void
+     */
+    public function test_admin_can_generate_pdf()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $client = Client::factory()->create();
+        $invoice = Invoice::factory()->create(['client_id' => $client->id]);
+        Sanctum::actingAs($admin);
+
+        $response = $this->get('/api/v1/invoices/' . $invoice->id . '/pdf');
+
+        $response->assertStatus(200)
+                 ->assertHeader('Content-Type', 'application/pdf')
+                 ->assertHeader('Content-Disposition', 'attachment; filename="invoice-' . $invoice->invoice_number . '.pdf"');
+    }
+
+
+    /**
+     * Summary of test_pdf_contains_status
+     * @return void
+     */
+    public function test_pdf_contains_status()
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $invoice = Invoice::factory()->create(['status' => 'draft']);
+        Sanctum::actingAs($admin);
+
+        $response = $this->get("/api/v1/invoices/{$invoice->id}/pdf");
+        $response->assertStatus(200);
+
+        $pdfPath = storage_path('app/test.pdf');
+        file_put_contents($pdfPath, $response->getContent());
+        $text = Pdf::getText($pdfPath);
+        $this->assertStringContainsString('Statut : Brouillon', $text);
     }
 
 }

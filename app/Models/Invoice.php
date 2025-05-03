@@ -11,8 +11,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Invoice extends Model
 {
     use HasFactory;
-    protected $fillable = ['client_id', 'invoice_number', 'total_ht', 'issue_date', 'due_date'];
+    protected $fillable = ['client_id', 'invoice_number', 'total_ht', 'issue_date', 'due_date', 'status'];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'total_ht' => 'float',
+    ];
     public function client()
     {
         return $this->belongsTo(Client::class);
@@ -29,10 +34,10 @@ class Invoice extends Model
     }
 
     // Recalcul total HT
-    public function calculateTotal()
+    /*public function calculateTotal()
     {
         $this->total_ht = $this->lines()->sum('amount');
         $this->save();
-    }
+    }*/
     
 }

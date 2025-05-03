@@ -1,0 +1,101 @@
+openapi: 3.0.3
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        client:
+          $ref: '#/components/schemas/Client'
+        invoice_number:
+          type: string
+          example: INV-2025-0001
+        total_ht:
+          type: number
+          format: float
+          example: 300.00
+        issue_date:
+          type: string
+          format: date
+          example: 2025-05-01
+        due_date:
+          type: string
+          format: date
+          example: 2025-05-15
+        status:
+          type: string
+          enum: ["draft", "paid", "cancelled"]
+          default: "draft"
+          example: "draft"
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLine'
+      required:
+        - id
+        - client
+        - invoice_number
+        - total_ht
+        - issue_date
+        - due_date
+        - lines
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        phone:
+          type: string
+          example: 1234567890
+        address:
+          type: string
+          example: 123 Main St
+      required:
+        - id
+        - name
+        - email
+    InvoiceLine:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        description:
+          type: string
+          example: Service A
+        amount:
+          type: number
+          format: float
+          example: 100.00
+      required:
+        - id
+        - description
+        - amount
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      required:
+        - message

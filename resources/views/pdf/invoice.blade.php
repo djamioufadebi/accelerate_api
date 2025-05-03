@@ -1,21 +1,68 @@
-<!DOCTYPE html>
-<html>
+{{-- <!DOCTYPE html>
+<html lang="fr">
 
 <head>
-    <title>FACTURE N° : {{ $invoice->invoice_number }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Accelerate">
+    <meta name="description" content="Facture générée par Accelerate">
+    <title>Facture {{ e($invoice->invoice_number) }}</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Arial', sans-serif;
+            font-size: 12pt;
+            margin: 40px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         .header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
             margin-bottom: 20px;
         }
 
-        .client-info {
+        .header h1 {
+            font-size: 24pt;
+            color: #007bff;
+            margin: 0;
+        }
+
+        .header .company-info {
+            text-align: right;
+            font-size: 10pt;
+        }
+
+        .invoice-info {
             margin-bottom: 20px;
+        }
+
+        .invoice-info table {
+            width: 100%;
+            font-size: 11pt;
+        }
+
+        .invoice-info td {
+            padding: 5px;
+        }
+
+        .client-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .client-info h3 {
+            margin-top: 0;
+            color: #007bff;
         }
 
         .table {
@@ -27,61 +74,350 @@
         .table th,
         .table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
         }
 
         .table th {
-            background-color: #f2f2f2;
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+        .table td {
+            font-size: 11pt;
         }
 
         .total {
             text-align: right;
+            font-size: 14pt;
             font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .status {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 10pt;
+            color: #777;
+            position: fixed;
+            bottom: 20px;
+            width: calc(100% - 80px);
+        }
+
+        @page {
+            margin: 40px;
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <h1>Invoice #{{ $invoice->invoice_number }}</h1>
-        <p>Issued: {{ $invoice->issue_date->toDateString() }} | Due: {{ $invoice->due_date->toDateString() }}</p>
-    </div>
+    <div class="container">
+        <!-- En-tête -->
+        <div class="header">
+            <h1>Facture {{ e($invoice->invoice_number) }}</h1>
+            <div class="company-info">
+                <strong>Accelerate</strong><br>
+                Email : contact@accelerate.com<br>
+            </div>
+        </div>
 
-    <div class="client-info">
-        <h3>Client</h3>
-        <p>
-            {{ $client->name }}<br>
-            {{ $client->email }}<br>
-            @if ($client->phone)
-                {{ $client->phone }}<br>
-            @endif
-            @if ($client->address)
-                {{ $client->address }}
-            @endif
-        </p>
-    </div>
-
-    <h3>Invoice Lines</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Description</th>
-                <th>Amount (€)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($lines as $line)
+        <!-- Informations de la facture -->
+        <div class="invoice-info">
+            <table>
                 <tr>
-                    <td>{{ $line->description }}</td>
-                    <td>{{ number_format($line->amount, 2) }}</td>
+                    <td><strong>Date d'émission :</strong> {{ e($invoice->issue_date->format('d/m/Y')) }}</td>
+                    <td><strong>Date d'échéance :</strong> {{ e($invoice->due_date->format('d/m/Y')) }}</td>
                 </tr>
-            @endforeach
-        </tbody>
-    </table>
+                <tr>
+                    <td><strong>Statut :</strong>
+                        @switch($invoice->status)
+                            @case('draft')
+                                Brouillon
+                            @break
 
-    <div class="total">
-        Total HT: {{ number_format($invoice->total_ht, 2) }} €
+                            @case('paid')
+                                Payée
+                            @break
+
+                            @case('cancelled')
+                                Annulée
+                            @break
+                        @endswitch
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Informations du client -->
+        <div class="client-info">
+            <h3>Client</h3>
+            <p>
+                {{ e($invoice->client->name) }}<br>
+                {{ e($invoice->client->email) }}<br>
+                @if ($invoice->client->phone)
+                    {{ e($invoice->client->phone) }}<br>
+                @endif
+                @if ($invoice->client->address)
+                    {{ e($invoice->client->address) }}
+                @endif
+            </p>
+        </div>
+
+        <!-- Lignes de facture -->
+        <h3>Lignes de facture</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Montant (€)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($invoice->lines as $line)
+                    <tr>
+                        <td>{{ e($line->description) }}</td>
+                        <td>{{ number_format($line->amount, 2, ',', ' ') }} €</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <!-- Total -->
+        <div class="total">
+            Total HT : {{ number_format($invoice->total_ht, 2, ',', ' ') }} €
+        </div>
+
+        <!-- Pied de page -->
+        <div class="footer">
+            Facture générée le {{ now()->format('d/m/Y') }} par Accelerate<br>
+            Page {{ '{PAGENO}' }}
+        </div>
+    </div>
+</body>
+
+</html> --}}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Accelerate">
+    <meta name="description" content="Facture générée par Accelerate">
+    <title>Facture {{ e($invoice->invoice_number) }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 12pt;
+            margin: 40px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 24pt;
+            color: #007bff;
+            margin: 0;
+        }
+
+        .header .company-info {
+            text-align: right;
+            font-size: 10pt;
+        }
+
+        .invoice-info {
+            margin-bottom: 20px;
+        }
+
+        .invoice-info table {
+            width: 100%;
+            font-size: 11pt;
+        }
+
+        .invoice-info td {
+            padding: 5px;
+        }
+
+        .client-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .client-info h3 {
+            margin-top: 0;
+            color: #007bff;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+        .table td {
+            font-size: 11pt;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .footer {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 10pt;
+            color: #777;
+            position: fixed;
+            bottom: 20px;
+            width: calc(100% - 80px);
+        }
+
+        @page {
+            margin: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- En-tête -->
+        <div class="header">
+            <h1>Facture {{ e($invoice->invoice_number) }}</h1>
+            <div class="company-info">
+                <strong>Accelerate</strong><br>
+                123 Boulevard de l'Innovation<br>
+                {{-- 75001 Paris, France<br> --}}
+                Email : contact@accelerate.com<br>
+                {{-- SIRET : 123 456 789 00012 --}}
+            </div>
+        </div>
+
+        <!-- Informations de la facture -->
+        <div class="invoice-info">
+            <table>
+                <tr>
+                    <td><strong>Date d'émission :</strong> {{ e($invoice->issue_date) }}</td>
+                    <td><strong>Date d'échéance :</strong> {{ e($invoice->due_date) }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Statut :</strong>
+                        @switch($invoice->status)
+                            @case('draft')
+                                Brouillon
+                            @break
+
+                            @case('paid')
+                                Payée
+                            @break
+
+                            @case('cancelled')
+                                Annulée
+                            @break
+
+                            @default
+                                Inconnu
+                        @endswitch
+                    </td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Informations du client -->
+        <div class="client-info">
+            <h3>Client</h3>
+            @if ($invoice->client)
+                <p>
+                    {{ e($invoice->client->name) }}<br>
+                    {{ e($invoice->client->email) }}<br>
+                    @if ($invoice->client->phone)
+                        {{ e($invoice->client->phone) }}<br>
+                    @endif
+                    @if ($invoice->client->address)
+                        {{ e($invoice->client->address) }}
+                    @endif
+                </p>
+            @else
+                <p>Client non spécifié</p>
+            @endif
+        </div>
+
+        <!-- Lignes de facture -->
+        <h3>Lignes de facture</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Montant (€)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($invoice->lines as $line)
+                    <tr>
+                        <td>{{ e($line->description) }}</td>
+                        <td>{{ number_format($line->amount, 2, ',', ' ') }} €</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="2">Aucune ligne de facture</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        <!-- Total -->
+        <div class="total">
+            Total HT : {{ number_format($invoice->total_ht, 2, ',', ' ') }} €
+        </div>
+
+        <!-- Pied de page -->
+        <div class="footer">
+            Facture générée le {{ now()->format('d/m/Y') }} par Accelerate<br>
+            Page {{ '{PAGENO}' }}
+        </div>
     </div>
 </body>
 

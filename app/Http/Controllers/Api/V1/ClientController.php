@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ClientResource;
 use App\Http\Requests\StoreClientRequest;
 use App\Http\Requests\UpdateClientRequest;
@@ -88,8 +89,25 @@ class ClientController extends Controller
      */
     public function store(StoreClientRequest $request)
     {
-        $client = Client::create($request->validated());
-        return new ClientResource($client);
+        if (Auth::user()->role !== "admin") {
+            return response()->json([
+                'message' => 
+                "Vous n'avez l'autorisation d'éffectuer cette action"], 
+                403);
+        }
+        else {
+
+            $client = Client::create($request->validated());
+
+            return response()->json([
+                'client' => new ClientResource($client),
+                'message' => 'Client créé avec succès !'
+            ], 201);
+            
+        }
+       
+
+        
     }
 
     /**
@@ -114,6 +132,7 @@ class ClientController extends Controller
     public function show(Client $client)
     {
         return new ClientResource($client);
+        
     }
 
     /**
@@ -147,8 +166,22 @@ class ClientController extends Controller
      */
     public function update(UpdateClientRequest $request, Client $client)
     {
-        $client->update($request->validated());
-        return new ClientResource($client);
+
+        if (Auth::user()->role !== "admin") {
+            return response()->json([
+                'message' => 
+                "Vous n'avez l'autorisation d'éffectuer cette action"], 
+                403);
+        }
+        else {
+
+           $client->update($request->validated());
+
+            return response()->json([
+                'client' =>  new ClientResource($client),
+                'message' => 'Client mise à jour avec succès !'
+            ], 201);
+        }
     }
 
     /**
@@ -171,7 +204,17 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
-        $client->delete();
-        return response()->json(null, 204);
+        if (Auth::user()->role !== "admin") {
+            return response()->json([
+                'message' => 
+                "Vous n'avez l'autorisation d'éffectuer cette action"], 
+                403);
+        }
+        else {
+            $client->delete();
+            return response()->json(['message' => 'Client supprimé avec succès']);
+        }
+        
+
     }
 }

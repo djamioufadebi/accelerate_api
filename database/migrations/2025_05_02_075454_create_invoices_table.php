@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('total_ht', 10, 2)->default(0.00);
             $table->date('issue_date');
             $table->date('due_date');
+            $table->string('status')->default('draft'); // draft, paid, cancelled
             $table->timestamps();
         });
     }

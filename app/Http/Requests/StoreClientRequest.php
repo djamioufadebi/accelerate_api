@@ -46,11 +46,9 @@ class StoreClientRequest extends FormRequest
 
     public function messages() {
         return [
-            'name.required' => "Le nom de l'utilisateur est requis",
-            'email.required' => "L'email de l'utilisateur est requis",
+            'name.required' => "Le nom du client est requis",
+            'email.required' => "L'email du client est requis",
             'email.email' => "L'email est invalide",
-            'password.required' => "Le mot de passe de l'utilisateur est requis",
-            'password.min' => "Le mot de passe doit comporter minimum 6 caractères"
         ];
        
     }

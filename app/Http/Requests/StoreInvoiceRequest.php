@@ -26,12 +26,13 @@ class StoreInvoiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_id' => ['required', 'exists:clients,id'],
-            'issue_date' => ['required', 'date'],
-            'due_date' => ['required', 'date', 'after_or_equal:issue_date'],
-            'lines' => ['required', 'array', 'min:1'],
-            'lines.*.description' => ['required', 'string'],
-            'lines.*.amount' => ['required', 'numeric', 'min:0'],
+            'client_id' => 'required|exists:clients,id',
+            'issue_date' => 'required|date|before_or_equal:today',
+            'due_date' => 'required|date|after_or_equal:issue_date',
+            'lines' => 'required|array|min:1',
+            'lines.*.description' => 'required|string|max:255',
+            'lines.*.amount' => 'required|numeric|min:0',
+            'status' => '',
         ];
     }
 
@@ -45,15 +46,15 @@ class StoreInvoiceRequest extends FormRequest
     }
 
 
-    public function messages() {
+    public function messages()
+    {
         return [
-            'client_id.required' => "Le client est requis",
-            'email.required' => "L'email du client est requis",
-            'email.email' => "L'email est invalide",
-            'password.required' => "Le mot de passe du client est requis",
-            'password.min' => "Le mot de passe doit comporter minimum 6 caractères"
+            'client_id.required' => 'Le client est requis.',
+            'client_id.exists' => 'Le client spécifié n’existe pas.',
+            'issue_date.before_or_equal' => 'La date d’émission doit être aujourd’hui ou antérieure.',
+            'due_date.after_or_equal' => 'La date d’échéance doit être postérieure ou égale à la date d’émission.',
+            'lines.min' => 'Au moins une ligne de facture est requise.',
         ];
-       
     }
 
     

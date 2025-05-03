@@ -11,6 +11,10 @@ class InvoiceLine extends Model
     use HasFactory;
     protected $fillable = ['invoice_id', 'description', 'amount'];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
     public function invoice()
     {
         return $this->belongsTo(Invoice::class);
