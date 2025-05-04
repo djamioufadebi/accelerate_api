@@ -168,6 +168,36 @@ The API is prefixed with `/api/v1`. Key endpoints include:
 - **POST /api/v1/invoices**: Create an invoice with lines.
 - **GET /api/v1/invoices/{id}/pdf**: Download invoice as PDF.
 
+#### Recupérer toutes les clients
+
+```http
+  GET /api/v1/clients
+```
+
+| Paramètre | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `api_key` | `string` | **Required**. Votre Clé API |
+
+#### Pour récupérer un client donnée
+
+```http
+  GET /api/v1/clients/${id}
+```
+
+| Paramètre | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id du client |
+
+#### Pour modifier une client donnée
+
+```http
+  PUT /api/v1/clients/${id}
+```
+
+| Paramètre | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `id`      | `string` | **Required**. Id du client |
+
 See the [Swagger documentation](#documentation) for full details.
 
 ## Testing
