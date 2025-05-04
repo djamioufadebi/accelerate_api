@@ -15,8 +15,6 @@ Bienvenue dans la documentation de l'**Accelerate API**, une API RESTful dévelo
   - [Authentification](#authentification)
   - [Endpoints](#endpoints)
 - [Tester l'API avec Postman](#tester-lapi-avec-postman)
-- [Tests Automatisés](#tests-automatisés)
-- [Pipeline CI/CD](#pipeline-cicd)
 - [Collaboration avec l'Équipe](#collaboration-avec-léquipe)
 - [Gestion des Erreurs](#gestion-des-erreurs)
 - [Ressources Supplémentaires](#ressources-supplémentaires)
@@ -34,20 +32,17 @@ L'**Accelerate API** est une application Laravel conçue pour gérer les facture
 - **Sécurité** : Authentification via tokens Sanctum (`bearerAuth`), protection contre XSS, CSRF, et injections SQL.
 - **Documentation** : Swagger UI accessible à `/api/documentation`.
 - **Tests** : Tests unitaires et d'intégration avec PHPUnit, couverture >80%.
-- **Déploiement** : Support pour environnements locaux et Docker, avec CI/CD via Jenkins.
 
 Ce projet est développé pour le **Sprint 1**, avec une collaboration étroite avec Malco pour les tests et la validation des endpoints avant le 6 mai 2025.
 
 ## Technologies Utilisées
 
 - **Backend** : Laravel 11, PHP 8.2
-- **Base de données** : PostgreSQL 16 (MySQL également supporté)
+- **Base de données** :  MySQL 
 - **Authentification** : Laravel Sanctum
 - **Génération PDF** : `barryvdh/laravel-dompdf`
 - **Documentation API** : L5-Swagger (OpenAPI 3.0)
 - **Tests** : PHPUnit
-- **CI/CD** : Jenkins, GitHub Actions
-- **Conteneurisation** : Docker, Docker Compose
 - **Versionnement** : Git
 
 ## Prérequis
@@ -67,8 +62,8 @@ Pour les tests :
 ## Installation
 1. **Clone the repository**:
    ```bash
-   git clone https://gitea.example.com/accelerate/accelerate-backend.git
-   cd accelerate-backend
+   git clone (https://github.com/djamioufadebi/accelerate_api.git)
+   cd accelerate_api
    ```
 
 2. **Install PHP dependencies**:
@@ -98,7 +93,7 @@ Pour les tests :
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
-   DB_DATABASE=accelerate
+   DB_DATABASE=accelerate_api
    DB_USERNAME=root
    DB_PASSWORD=secret
    ```
@@ -129,7 +124,7 @@ Pour les tests :
 
 2. **Seed the database** (to create an admin user):
    ```bash
-   php artisan db:seed --class=AdminSeeder
+   php artisan db:seed --class=UserSeeder
    ```
 
 3. **Start the development server**:
@@ -146,17 +141,17 @@ Pour les tests :
 ## Seeding the Database
 To create an admin user for testing authentication:
 ```bash
-php artisan db:seed --class=AdminSeeder
+php artisan db:seed --class=UserSeeder
 ```
 Default credentials:
-- Email: `admin@example.com`
-- Password: `password`
+- Email: `admin@accelerate.com`
+- Password: `accelerate@2025!?229`
 
 You can customize these in `.env`:
 ```env
-ADMIN_NAME="Admin User"
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=password
+ADMIN_NAME="Accelerate Admin"
+ADMIN_EMAIL=admin@accelerate.com
+ADMIN_PASSWORD=accelerate@2025!?229
 ```
 
 ## API Endpoints
