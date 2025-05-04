@@ -163,7 +163,7 @@ The API is prefixed with `/api/v1`. Key endpoints include:
 - **POST /api/v1/invoices**: Create an invoice with lines.
 - **GET /api/v1/invoices/{id}/pdf**: Download invoice as PDF.
 
-#### Recupérer toutes les clients
+#### Recupérer tous les clients
 
 ```http
   GET /api/v1/clients
@@ -173,7 +173,7 @@ The API is prefixed with `/api/v1`. Key endpoints include:
 | :-------- | :------- | :------------------------- |
 | `api_key` | `string` | **Required**. Votre Clé API |
 
-#### Pour récupérer un client donnée
+#### Pour récupérer un client donné
 
 ```http
   GET /api/v1/clients/${id}
@@ -183,7 +183,7 @@ The API is prefixed with `/api/v1`. Key endpoints include:
 | :-------- | :------- | :-------------------------------- |
 | `id`      | `string` | **Required**. Id du client |
 
-#### Pour modifier une client donnée
+#### Pour modifier un client donné
 
 ```http
   PUT /api/v1/clients/${id}
