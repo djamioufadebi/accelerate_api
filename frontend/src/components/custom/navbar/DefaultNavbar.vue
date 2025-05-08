@@ -29,7 +29,9 @@
               Go Pro
             </a>
           </li> -->
-          <li class="nav-item dropdown">
+          
+          <!-- barre des langues -->
+          <!-- <li class="nav-item dropdown">
             <a href="#" class="search-toggle nav-link" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <img src="@/assets/images/Flag/france.png" class="img-fluid rounded-circle" alt="user" style="height: 30px; min-width: 30px; width: 30px" />
               <span class="bg-primary"></span>
@@ -51,7 +53,8 @@
                 </div>
               </b-card>
             </div>
-          </li>
+          </li> -->
+          <!-- barre des langues -->
 
           <!-- ligne notification -->
           <li class="nav-item dropdown">
@@ -183,9 +186,9 @@
               <img src="@/assets/images/avatars/avtar_4.png" alt="User-Profile" class="theme-color-green-img img-fluid avatar avatar-50 avatar-rounded" />
               <img src="@/assets/images/avatars/avtar_5.png" alt="User-Profile" class="theme-color-yellow-img img-fluid avatar avatar-50 avatar-rounded" />
               <img src="@/assets/images/avatars/avtar_3.png" alt="User-Profile" class="theme-color-pink-img img-fluid avatar avatar-50 avatar-rounded" />
-              <div class="caption ms-3 d-none d-md-block">
-                <h6 class="mb-0 caption-title">Vianney GOUTON</h6>
-                <p class="mb-0 caption-sub-title">Administrateur Système</p>
+              <div class="caption ms-3 d-none d-md-block" v-if="userName">
+                <h6 class="mb-0 caption-title">{{userName}}</h6>
+                <p class="mb-0 caption-sub-title">{{userRole}}</p>
               </div>  
             </a>
 
@@ -199,7 +202,7 @@
               <!-- <li><router-link class="dropdown-item" :to="{ name: 'default.user-privacy-setting' }">Privacy Setting</router-link></li> -->
               <li><hr class="dropdown-divider" /></li>
 
-              <li>
+              <li @click="HandleLogout">
                 <router-link class="dropdown-item" :to="{ name: 'auth.login' }">
                   <icon-component type="dual-tone" icon-name="save-up"></icon-component> Déconnexion
                 </router-link>
@@ -212,9 +215,13 @@
     </div>
   </nav>
 </template>
+
 <script>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useStore } from 'vuex'
+import {useRouter} from 'vue-router';
+import {userAuthStore} from '@store/auth';
+
 export default {
   components: {},
   props: {
@@ -228,9 +235,23 @@ export default {
     }
   },
   setup(props, { emit }) {
+    const auth = userAuthStore();
+    const router = useRouter();
+ 
+    const user = computed(() => auth.user);
+
+    const userName = computed(() => user.value?.name ?? '');
+    const userRole = computed(() => user.value?.role ?? '');
+    const userEmail = computed(() => user.value?.email ?? '');
+
     const store = useStore()
     const headerNavbar = computed(() => store.getters['setting/header_navbar'])
     const isHidden = ref(false)
+
+    const HandleLogout = () => {
+      auth.logout(router);
+      // router.push('/login');
+    }
 
     const onscroll = () => {
       const yOffset = document.documentElement.scrollTop
@@ -257,7 +278,11 @@ export default {
       headerNavbar,
       isHidden,
       carts,
-      emit
+      emit,
+      HandleLogout,
+      userName ,
+      userEmail,
+      userRole
     }
   }
 }

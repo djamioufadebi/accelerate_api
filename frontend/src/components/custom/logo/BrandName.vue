@@ -1,5 +1,6 @@
 <template>
-  {{ appName }}
+  <!-- {{ appName }} -->
+  Facturation
 </template>
 
 <script>

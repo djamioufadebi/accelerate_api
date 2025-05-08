@@ -1,10 +1,16 @@
 import {
     createApp
 } from 'vue'
-import App from './App.vue'
-import './registerServiceWorker'
-import router from './router'
-import store from './store'
+import App from './App.vue';
+import './registerServiceWorker';
+import router from './router';
+import store from './store';
+import axios from './plugins/axios';
+import {
+    createPinia
+} from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+
 
 // Library Components
 import VueSweetalert2 from 'vue-sweetalert2'
@@ -25,7 +31,9 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 require('waypoints/lib/noframework.waypoints.min')
 
 const app = createApp(App)
-app.use(store).use(router)
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate);
+app.use(store).use(router).use(axios).use(pinia)
 
 // Library Components
 app.use(VueSweetalert2)
@@ -39,5 +47,7 @@ app.use(globalDirective)
 app.mixin(globalMixin)
 
 app.mount('#app')
+
+
 
 export default app

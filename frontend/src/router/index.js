@@ -54,15 +54,21 @@ const authChildRoutes = (prefix) => [{
 
 // Dashboard routes
 const dashboardRoutes = (prefix) => [{
-    path: '/',
-    name: prefix + '.dashboard',
-    meta: {
-        auth: true,
-        name: 'Home',
-        isBanner: false
+        path: '/',
+        redirect: '/dashboard'
     },
-    component: () => import('@/views/dashboards/IndexPage.vue')
-}]
+    {
+
+        path: '/',
+        name: prefix + '.dashboard',
+        meta: {
+            auth: true,
+            name: 'Home',
+            isBanner: false
+        },
+        component: () => import('@/views/dashboards/IndexPage.vue')
+    }
+]
 
 // Default routes
 const defaultChildRoutes = (prefix) => [{
@@ -353,6 +359,7 @@ const defaultChildRoutes = (prefix) => [{
         },
         component: () => import('@/views/pages/Clients.vue')
     },
+
     {
         path: '/factures',
         name: prefix + '.factures',
@@ -402,13 +409,19 @@ const errorRoutes = (prefix) => [
 const routes = [{
         path: '/',
         name: 'dashboard',
-        component: () => import('@/views/dashboards/IndexPage.vue'),
+        meta: {
+            auth: true
+        },
+        component: () => import('../layouts/DefaultLayout.vue'),
         children: dashboardRoutes('default')
     },
     // Default Pages
     {
         path: '/dashboard',
         name: 'dashboard',
+        meta: {
+            auth: true
+        },
         component: () => import('../layouts/DefaultLayout.vue'),
         children: defaultChildRoutes('default')
     },
@@ -467,5 +480,18 @@ const router = createRouter({
     base: process.env.BASE_URL,
     routes
 })
+
+router.beforeEach((to, from, next) => {
+    const token = localStorage.getItem('token')
+
+    if (to.meta.auth && !token) {
+        next({
+            name: 'auth.login'
+        })
+    } else {
+        next()
+    }
+})
+
 
 export default router

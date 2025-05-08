@@ -8,45 +8,47 @@
              
               <h2 class="mb-2 text-center">Connexion</h2>
               <p class="text-center">Identifiez-vous.</p>
-              <form>
+              <form @submit.prevent="login">
                 <div class="row">
                   <div class="col-lg-12">
                     <div class="form-group">
                       <label for="email" class="form-label">Email</label>
-                      <input type="email" class="form-control" id="email" aria-describedby="email" placeholder="email " />
+                      <input v-model="email" type="mail" class="form-control" id="email" aria-describedby="email" placeholder="Email " />
                     </div>
                   </div>
                   <div class="col-lg-12">
                     <div class="form-group">
                       <label for="password" class="form-label">Mot de passe</label>
-                      <input type="password" class="form-control" id="password" aria-describedby="password" placeholder="Mot de passe " />
+                      <input v-model="password" type="password" class="form-control" id="password" aria-describedby="password" placeholder="Mot de passe " />
                     </div>
                   </div>
-                  <div class="col-lg-12 d-flex justify-content-between">
+                  <!-- <div class="col-lg-12 d-flex justify-content-between">
                     <div class="form-check mb-3">
                       <input type="checkbox" class="form-check-input" id="customCheck1" />
                       <label class="form-check-label" for="customCheck1">Remember Me</label>
                     </div>
                     <a href="/auth/reset-password">Mot de passe oublié?</a>
-                  </div>
+                  </div> -->
                 </div>
+                <span v-if="errorMessage" class="text-danger">{{ errorMessage.value }}</span>
+
                 <div class="d-flex justify-content-center">
                   <button type="submit" class="btn btn-primary">Se connecter</button>
                 </div>
-                <p class="text-center my-3">Ou se connecter avec </p>
+                <!-- <p class="text-center my-3">Ou se connecter avec </p>
                 <div class="d-flex justify-content-center">
                   <ul class="list-group list-group-horizontal list-group-flush">
                     <li class="list-group-item border-0 pb-0">
                       <a href="#"><img src="@/assets/images/brands/google.png" alt="gm" loading="lazy" /></a>
                     </li>
                   </ul>
-                </div>
-                <p class="mt-3 text-center">Pas encore un compte? <a href="/auth/register" class="text-underline">Créer un compte.</a></p>
+                </div> -->
+                <!-- <p class="mt-3 text-center">Pas encore un compte? <a href="/auth/register" class="text-underline">Créer un compte.</a></p> -->
               </form>
             </b-card>
           </b-col>
         </b-row>
-
+ 
         <div class="sign-bg">
           <svg width="280" height="230" viewBox="0 0 431 398" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g opacity="0.05">
@@ -70,6 +72,42 @@
   </section>
 </template>
 
-<script setup></script>
+<script setup>
+import {ref} from 'vue';
+  // import axios from 'axios';
+  import {useRouter} from 'vue-router';
+  import {userAuthStore} from '@store/auth';
+
+
+  const email = ref('');
+  const password = ref('');
+  const router = useRouter();
+  const errorMessage = ref(null);
+
+  const login = async () => {
+    try {
+    //   await axios.get('/sanctum/csrf-cookie');
+    //   const response = await axios.post('http://localhost:8000/api/v1/login', {
+    //     email: email.value,
+    //     password: password.value
+    //   });
+    //   // console.log(response);
+    // localStorage.setItem('token', response.data.token);
+    // axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+
+    await userAuthStore().login({
+      email: email.value,
+      password: password.value
+    },router);
+
+    } catch (error) {
+      // error.value = 'Identifiants invalides !! '
+      console.log(error);
+      // errorMessage.value = error.response.data.message;  //pour afficher l'erreur depuis le serveur
+      errorMessage.value = 'Identifiants invalides !! Veuillez rééssayer';
+    }
+  }
+
+</script>
 
 <style lang="scss" scoped></style>
